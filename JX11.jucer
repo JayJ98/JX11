@@ -5,6 +5,8 @@
               pluginCode="JX11">
   <MAINGROUP id="Z97kKX" name="JX11">
     <GROUP id="{A79B23E4-5B41-DB6C-B24D-078FC05D67D7}" name="Source">
+      <FILE id="ioBeNB" name="Oscillator.h" compile="0" resource="0" file="Source/Oscillator.h"/>
+      <FILE id="SlJ28s" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
       <FILE id="bVPD2u" name="NoiseGenerator.h" compile="0" resource="0"
             file="Source/NoiseGenerator.h"/>
       <FILE id="tb9315" name="Synth.cpp" compile="1" resource="0" file="Source/Synth.cpp"/>
@@ -18,7 +20,6 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="T6wCot" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <FILE id="SlJ28s" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
