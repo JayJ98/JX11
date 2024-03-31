@@ -139,6 +139,13 @@ bool JX11AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) con
 void JX11AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+    
+    // read the parameters here:
+    const juce::String& paramID = ParameterID::noise.getParamID();
+    float noiseMix = apvts.getRawParameterValue(paramID)->load() / 100.0f;
+    noiseMix *= noiseMix;
+    synth.noiseMix  = noiseMix * 0.06f;
+    
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -417,6 +424,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
                                                             0.0f,
                                                             juce::AudioParameterFloatAttributes().withLabel("%")
                                                             .withStringFromValueFunction(vibratoStringFromValue)) );
+    
+    layout.add( std::make_unique<juce::AudioParameterFloat>(
+                                                            ParameterID::noise,
+                                                            "Noise",
+                                                            juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
+                                                            0.0f,
+                                                            juce::AudioParameterFloatAttributes().withLabel("%")) );
     
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(

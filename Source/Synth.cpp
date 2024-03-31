@@ -34,10 +34,11 @@ void Synth::render(float** outputBuffers, int sampleCount){
     
     
     for (int sample = 0; sample < sampleCount; ++sample) {
+        float noise = noiseGen.nextValue() * noiseMix;
         
         float output = 0.0f;
         if(voice.note > 0){
-            output = voice.render();
+            output = voice.render() + noise;
         }
         outputBufferLeft[sample] = output;
         
