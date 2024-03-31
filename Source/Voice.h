@@ -14,13 +14,17 @@
 struct Voice{
     int note;
     Oscillator osc;
+    float saw;
     
     void reset(){
         note = 0;
+        saw = 0.0f;
     }
 
     float render(){
-        return osc.nextSample();
+        float sample = osc.nextSample();
+        saw = saw * 0.997f - sample;
+        return saw;
     }
     
 };

@@ -9,24 +9,77 @@
 */
 
 #pragma once
+
+const float PI_OVER_4 = 0.7853981633974483f;
 const float TWO_PI = 6.2831853071795864f;
+const float PI = 3.1415926535897932f;
 
 class Oscillator{
 public:
-    float amplitude;
-    float inc;
-    float phase;
+    float period = 0.0f;
+    float amplitude = 1.0f;
     
     void reset(){
-        phase = 1.5707963268f;
+        inc = 0.0f;
+        phase = 0.0f;
+        
+        sin0 = 0.0f;
+        sin1 = 0.0f;
+        dsin = 0.0f;
+        
+        dc = 0.0f;
     }
     
     float nextSample(){
-        phase += inc;
-        if (phase >- 1.0f){
-            phase -= 1.0f;
+        float output = 0.0f;
+        
+        phase += inc; //1
+        
+        if (phase <= PI_OVER_4){ //2
+            //3
+            float halfPeriod = period / 2.0f;
+            phaseMax = std::floor(0.5f + halfPeriod) - 0.5f;
+            dc = 0.5f * amplitude / phaseMax;
+            phaseMax *= PI;
+            
+            inc = phaseMax / halfPeriod;
+            phase = -phase;
+            
+            
+            sin0 = amplitude * std::sin(phase);
+            sin1 = amplitude * std::sin(phase - inc);
+            dsin = 2.0f * std::cos(inc);
+            //4
+            if (phase * phase > 1e-9){
+                output = sin0 / phase;
+            } else {
+                output = amplitude;
+            }
+        } else { //5
+            //6
+            if (phase > phaseMax){
+                phase = phaseMax + phaseMax - phase;
+                inc = -inc;
+            }
+            //7
+            float sinp = dsin * sin0 - sin1;
+            sin1 = sin0;
+            sin0 = sinp;
+            
+            output = sinp / phase;
         }
         
-        return amplitude * std::sin(TWO_PI * phase);
+        return output - dc;
     }
+    
+private:
+    float phase;
+    float phaseMax;
+    float inc;
+    
+    float sin0;
+    float sin1;
+    float dsin;
+    
+    float dc;
 };
