@@ -48,7 +48,7 @@ namespace ParameterID{
 //==============================================================================
 /**
 */
-class JX11AudioProcessor  : public juce::AudioProcessor
+class JX11AudioProcessor  : public juce::AudioProcessor, private juce::ValueTree::Listener
 {
 public:
     //==============================================================================
@@ -110,12 +110,13 @@ private:
     juce::AudioParameterFloat*  oscFineParam;
     juce::AudioParameterChoice* glideModeParam;
     juce::AudioParameterFloat*  glideBendParam;
+    juce::AudioParameterFloat*  glideRateParam;
     juce::AudioParameterFloat*  filterFreqParam;
     juce::AudioParameterFloat*  filterResoParam;
     juce::AudioParameterFloat*  filterEnvParam;
     juce::AudioParameterFloat*  filterLFOParam;
     juce::AudioParameterFloat*  filterVelocityParam;
-    juce::AudioParameterFloat*  filterAttachParam;
+    juce::AudioParameterFloat*  filterAttackParam;
     juce::AudioParameterFloat*  filterDecayParam;
     juce::AudioParameterFloat*  filterSustainParam;
     juce::AudioParameterFloat*  filterReleaseParam;
@@ -131,6 +132,12 @@ private:
     juce::AudioParameterFloat*  outputLevelParam;
     juce::AudioParameterChoice* polyModeParam;
     
+    std::atomic<bool> parametersChanged { false };
     
+    void valueTreePropertyChanged(juce::ValueTree&, const juce::Identifier&) override{
+        parametersChanged.store(true);
+    }
+    
+    void update();
 };
 
