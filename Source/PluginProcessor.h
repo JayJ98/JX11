@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "Synth.h"
+#include "Preset.h"
 
 namespace ParameterID{
     #define PARAMETER_ID(str) const juce::ParameterID str(#str, 1);
@@ -139,5 +140,10 @@ private:
     }
     
     void update();
+    
+    void createPrograms();
+    
+    std::vector<Preset> presets;
+    int currentProgram;
 };
 

@@ -5,6 +5,7 @@
               pluginCode="JX11">
   <MAINGROUP id="Z97kKX" name="JX11">
     <GROUP id="{A79B23E4-5B41-DB6C-B24D-078FC05D67D7}" name="Source">
+      <FILE id="SeszgN" name="Preset.h" compile="0" resource="0" file="Source/Preset.h"/>
       <FILE id="ioBeNB" name="Oscillator.h" compile="0" resource="0" file="Source/Oscillator.h"/>
       <FILE id="SlJ28s" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
       <FILE id="bVPD2u" name="NoiseGenerator.h" compile="0" resource="0"
