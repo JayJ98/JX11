@@ -145,5 +145,7 @@ private:
     
     std::vector<Preset> presets;
     int currentProgram;
+    
+    const float SILENCE = 0.0001f;
 };
 

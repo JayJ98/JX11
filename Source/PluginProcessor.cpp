@@ -578,9 +578,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
     layout.add( std::make_unique<juce::AudioParameterFloat>(
                                                             ParameterID::envDecay,
                                                             "Env Decay",
-                                                            juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
-                                                            50.0f,
-                                                            juce::AudioParameterFloatAttributes().withLabel("%")) );
+                                                            juce::NormalisableRange<float>(30.0f, 30000.0f, 0.01f, 0.25f),
+                                                            1500.0f,
+                                                            juce::AudioParameterFloatAttributes().withLabel("ms")) );
     
     layout.add( std::make_unique<juce::AudioParameterFloat>(
                                                             ParameterID::envSustain,
@@ -659,6 +659,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
 }
 
 void JX11AudioProcessor::update(){
+    float sampleRate = float(getSampleRate());
+    float inverseSampleRate = 1.0f / sampleRate;
+    
+    synth.envAttack = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envAttackParam->get()));
+    
+    synth.envDecay = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envDecayParam->get()));
+    
+    synth.envSustain = envSustainParam->get() / 100.0f;
+    
+    float envRelease = envReleaseParam->get();
+    if (envRelease < 1.0f) {
+        synth.envRelease = 0.75f; //an extra fast release
+    }else{
+
+        synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envRelease));
+    }
+    
     float noiseMix = noiseParam->get() / 100.0f;
     noiseMix *= noiseMix;
     synth.noiseMix = noiseMix * 0.06f;

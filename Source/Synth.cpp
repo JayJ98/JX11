@@ -15,7 +15,7 @@ Synth::Synth(){
     sampleRate = 44100.0f;
 }
 
-void Synth::allocateResources(double sampleRate_, int samplesPerBlock){
+void Synth::allocateResources(double sampleRate_, int /*samplesPerBlock*/){
     sampleRate = static_cast<float>(sampleRate_);
 }
 
@@ -37,14 +37,18 @@ void Synth::render(float** outputBuffers, int sampleCount){
         float noise = noiseGen.nextValue() * noiseMix;
         
         float output = 0.0f;
-        if(voice.note > 0){
-            output = voice.render() + noise;
+        if(voice.env.isActive()){
+            output = voice.render(noise);
         }
         outputBufferLeft[sample] = output;
         
         if(outputBufferRight != nullptr){
             outputBufferRight[sample] = output;
         }
+    }
+    
+    if (!voice.env.isActive()) {
+        voice.env.reset();
     }
     
     protectYourears(outputBufferLeft, sampleCount);
@@ -84,10 +88,22 @@ void Synth::noteOn(int note, int velocity){
     voice.osc.period = sampleRate / frequency;
     voice.osc.reset();
     
+    
+    Envelope& env = voice.env;
+    env.attackMultiplier = envAttack;
+    env.decayMultiplier = envDecay;
+    env.sustainLevel = envSustain;
+    env.releaseMultiplier = envRelease;
+    env.attack();
+    
+//    env.level = 1.0f;
+//    env.target = env.sustainLevel;
+//    env.multiplier = env.decayMultiplier;
+    
 }
 
 void Synth::noteOff(int note){
     if(voice.note == note){
-        voice.note = 0;
+        voice.release();
     }
 }
