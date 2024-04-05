@@ -32,6 +32,8 @@ void Synth::render(float** outputBuffers, int sampleCount){
     float* outputBufferLeft = outputBuffers[0];
     float* outputBufferRight = outputBuffers[1];
     
+    voice.osc1.period = voice.period;
+    voice.osc2.period = voice.osc1.period * detune;
     
     for (int sample = 0; sample < sampleCount; ++sample) {
         float noise = noiseGen.nextValue() * noiseMix;
@@ -84,10 +86,12 @@ void Synth::noteOn(int note, int velocity){
     voice.note = note;
     float frequency = 440.0f * std::exp2(float(note - 69) / 12.0f);
     
-    voice.osc.amplitude = (velocity / 127.0f) * 0.5f;
-    voice.osc.period = sampleRate / frequency;
-    voice.osc.reset();
-    
+    //activate the first oscillator
+    voice.period = sampleRate / frequency;
+    voice.osc1.amplitude = (velocity / 127.0f) * 0.5f;
+    voice.osc2.amplitude = voice.osc1.amplitude * oscMix;
+    voice.osc1.reset();
+//    voice.osc2.reset();
     
     Envelope& env = voice.env;
     env.attackMultiplier = envAttack;
@@ -95,10 +99,6 @@ void Synth::noteOn(int note, int velocity){
     env.sustainLevel = envSustain;
     env.releaseMultiplier = envRelease;
     env.attack();
-    
-//    env.level = 1.0f;
-//    env.target = env.sustainLevel;
-//    env.multiplier = env.decayMultiplier;
     
 }
 

@@ -662,13 +662,12 @@ void JX11AudioProcessor::update(){
     float sampleRate = float(getSampleRate());
     float inverseSampleRate = 1.0f / sampleRate;
     
+    // update the envelope parameters
     synth.envAttack = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envAttackParam->get()));
-    
     synth.envDecay = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envDecayParam->get()));
-    
     synth.envSustain = envSustainParam->get() / 100.0f;
-    
     float envRelease = envReleaseParam->get();
+    
     if (envRelease < 1.0f) {
         synth.envRelease = 0.75f; //an extra fast release
     }else{
@@ -676,9 +675,20 @@ void JX11AudioProcessor::update(){
         synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envRelease));
     }
     
+    // update the noise mix
     float noiseMix = noiseParam->get() / 100.0f;
     noiseMix *= noiseMix;
     synth.noiseMix = noiseMix * 0.06f;
+    
+    // update the second oscillator mix
+    synth.oscMix = oscMixParam->get() / 100.0f;
+    
+    // update the second oscillator tuning. Note: calculating number of fractional
+    // semitones gives us 2^ 1/12 = 1.059463094359
+    float semi = oscTuneParam->get();
+    float cent = oscFineParam->get();
+    synth.detune = std::pow(1.059463094359f, -semi - 0.01f * cent);
+    
 }
 
 
