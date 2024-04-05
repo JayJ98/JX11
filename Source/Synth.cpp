@@ -84,14 +84,15 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2){
 
 void Synth::noteOn(int note, int velocity){
     voice.note = note;
-    float frequency = 440.0f * std::exp2(float(note - 69) / 12.0f);
-    
+    //float frequency = 440.0f * std::exp2( (float(note - 69) + tune) / 12.0f);
+
     //activate the first oscillator
-    voice.period = sampleRate / frequency;
+    float period = calcPeriod(note);
+    voice.period = period;
     voice.osc1.amplitude = (velocity / 127.0f) * 0.5f;
     voice.osc2.amplitude = voice.osc1.amplitude * oscMix;
-    voice.osc1.reset();
-//    voice.osc2.reset();
+//    voice.osc1.reset();
+    voice.osc2.reset();
     
     Envelope& env = voice.env;
     env.attackMultiplier = envAttack;
@@ -106,4 +107,12 @@ void Synth::noteOff(int note){
     if(voice.note == note){
         voice.release();
     }
+}
+
+float Synth::calcPeriod(int note) const{
+    float period = tune * std::exp(-0.05776226505f * float(note));
+    while (period < 6.0f || (period * detune) < 6.0f) {
+        period += period;
+    }
+    return period;
 }

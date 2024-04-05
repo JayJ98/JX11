@@ -427,7 +427,6 @@ void JX11AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
         parametersChanged.store(true);
     }
     
-    DBG(apvts.copyState().toXmlString());
 }
 
 //==============================================================================
@@ -635,7 +634,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
     layout.add(std::make_unique<juce::AudioParameterFloat>(
                                                            ParameterID::octave,
                                                            "Octave",
-                                                           juce::NormalisableRange<float>(-2.0f, 2.0f, 1.0f),
+                                                           juce::NormalisableRange<float>(-3.0f, 3.0f, 1.0f),
                                                            0.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -688,6 +687,12 @@ void JX11AudioProcessor::update(){
     float semi = oscTuneParam->get();
     float cent = oscFineParam->get();
     synth.detune = std::pow(1.059463094359f, -semi - 0.01f * cent);
+    
+    
+    float octave = octaveParam->get();
+    float tuning = tuningParam->get();
+    float tuneInSemi = -36.3763f - 12.0f * octave - tuning / 100.0f;
+    synth.tune = sampleRate * std::exp(0.05776226505f * tuneInSemi);
     
 }
 
