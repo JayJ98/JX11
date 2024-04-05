@@ -42,6 +42,7 @@ private:
     
     float sampleRate;
     Voice voice;
+    float pitchBend;
     
     NoiseGenerator noiseGen;
     
