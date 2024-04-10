@@ -705,6 +705,8 @@ void JX11AudioProcessor::update(){
     
     synth.noteStereoSpread = noteStereoSpreadParam->get();
     
+    synth.numVoices = (polyModeParam->getIndex() == 0) ? 1 : Synth::MAX_VOICES;
+    
 }
 
 
