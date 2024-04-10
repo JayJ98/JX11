@@ -132,7 +132,7 @@ private:
     juce::AudioParameterFloat*  octaveParam;
     juce::AudioParameterFloat*  tuningParam;
     juce::AudioParameterFloat*  outputLevelParam;
-    juce::AudioParameterChoice* polyModeParam;
+    juce::AudioParameterFloat*  polyModeParam;
     juce::AudioParameterFloat*  noteStereoSpreadParam;
     
     std::atomic<bool> parametersChanged { false };

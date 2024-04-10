@@ -441,11 +441,12 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createParameterLayout(){
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
                                                             ParameterID::polyMode,
-                                                            "PolyPhony",
-                                                            juce::StringArray{"Mono", "Poly"},
-                                                            1) );
+                                                            "Polyphony",
+                                                            juce::NormalisableRange<float>(1.0f, 8.0f,1.0f),
+                                                            1.0f,
+                                                            juce::AudioParameterFloatAttributes().withLabel("voices")) );
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
                                                            ParameterID::oscTune,
@@ -705,7 +706,9 @@ void JX11AudioProcessor::update(){
     
     synth.noteStereoSpread = noteStereoSpreadParam->get();
     
-    synth.numVoices = (polyModeParam->getIndex() == 0) ? 1 : Synth::MAX_VOICES;
+    synth.numVoices = polyModeParam->get();
+    
+
     
 }
 

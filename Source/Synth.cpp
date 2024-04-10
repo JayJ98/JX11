@@ -40,7 +40,7 @@ void Synth::render(float** outputBuffers, int sampleCount){
     float* outputBufferLeft = outputBuffers[0];
     float* outputBufferRight = outputBuffers[1];
     
-    for (int v = 0; v < MAX_VOICES; ++v) {
+    for (int v = 0; v < numVoices; ++v) {
         Voice& voice = voices[v];
         if (voice.env.isActive()) {
             voice.osc1.period = voice.period * pitchBend;
@@ -54,7 +54,7 @@ void Synth::render(float** outputBuffers, int sampleCount){
         float outputLeft = 0.0f;
         float outputRight = 0.0f;
         
-        for (int v = 0; v < MAX_VOICES; ++v) {
+        for (int v = 0; v < numVoices; ++v) {
             Voice& voice = voices[v];
             if(voice.env.isActive()){
                 float output = voice.render(noise);
@@ -73,7 +73,7 @@ void Synth::render(float** outputBuffers, int sampleCount){
         
     }
     
-    for (int v = 0; v < MAX_VOICES; ++v) {
+    for (int v = 0; v < numVoices; ++v) {
         Voice& voice = voices[v];
         if (!voice.env.isActive()) {
             voice.env.reset();
@@ -124,7 +124,7 @@ void Synth::noteOn(int note, int velocity){
 
 void Synth::noteOff(int note){
     
-    for (int v = 0; v < MAX_VOICES; ++v) {
+    for (int v = 0; v < numVoices; ++v) {
         if (voices[v].note == note) {
             voices[v].release();
             voices[v].note = 0;
@@ -179,7 +179,7 @@ int Synth::findFreeVoice(){
     int v = 0;
     float l = 100.0f;
     
-    for (int i = 0; i < MAX_VOICES; ++i) {
+    for (int i = 0; i < numVoices; ++i) {
         if (voices[i].env.level < l && !voices[i].env.isInAttack() ) {
             l = voices[i].env.level;
             v = i;
