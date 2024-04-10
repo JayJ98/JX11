@@ -35,6 +35,8 @@ public:
     
     float tune;
     
+    float noteStereoSpread;
+    
 private:
     void noteOn(int note, int velocity);
     void noteOff(int note);

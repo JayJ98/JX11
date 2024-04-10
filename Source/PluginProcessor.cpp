@@ -49,6 +49,7 @@ JX11AudioProcessor::JX11AudioProcessor()
     castParameter(apvts, ParameterID::tuning, tuningParam);
     castParameter(apvts, ParameterID::outputLevel, outputLevelParam);
     castParameter(apvts, ParameterID::polyMode, polyModeParam);
+    castParameter(apvts, ParameterID::noteStereoSpread, noteStereoSpreadParam);
     
     
     apvts.state.addListener(this);
@@ -142,7 +143,8 @@ void JX11AudioProcessor::setCurrentProgram (int index)
         octaveParam,
         tuningParam,
         outputLevelParam,
-        polyModeParam
+        polyModeParam,
+        noteStereoSpreadParam
     };
     
     const Preset& preset = presets[index];
@@ -653,6 +655,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
                                                             juce::AudioParameterFloatAttributes().withLabel("dB")) );
     
     
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+                                                           ParameterID::noteStereoSpread,
+                                                           "Note Stereo Spread",
+                                                           juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
+                                                           0.0f,
+                                                           juce::AudioParameterFloatAttributes().withLabel("%")));
+    
     
     return layout;
 }
@@ -693,6 +702,8 @@ void JX11AudioProcessor::update(){
     float tuning = tuningParam->get();
     float tuneInSemi = -36.3763f - 12.0f * octave - tuning / 100.0f;
     synth.tune = sampleRate * std::exp(0.05776226505f * tuneInSemi);
+    
+    synth.noteStereoSpread = noteStereoSpreadParam->get();
     
 }
 

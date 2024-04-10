@@ -12,7 +12,7 @@
 
 #include <cstring>
 
-const int NUM_PARAMS = 26;
+const int NUM_PARAMS = 27;
 
 struct Preset{
     Preset(const char* name,

@@ -39,15 +39,22 @@ void Synth::render(float** outputBuffers, int sampleCount){
     for (int sample = 0; sample < sampleCount; ++sample) {
         float noise = noiseGen.nextValue() * noiseMix;
         
-        float output = 0.0f;
-        if(voice.env.isActive()){
-            output = voice.render(noise);
-        }
-        outputBufferLeft[sample] = output;
+        float outputLeft = 0.0f;
+        float outputRight = 0.0f;
         
-        if(outputBufferRight != nullptr){
-            outputBufferRight[sample] = output;
+        if(voice.env.isActive()){
+            float output = voice.render(noise);
+            outputLeft += output * voice.panLeft;
+            outputRight += output * voice.panRight;
         }
+        
+        if (outputBufferRight != nullptr) {
+            outputBufferLeft[sample] = outputLeft;
+            outputBufferRight[sample] = outputRight;
+        }else{
+            outputBufferLeft[sample] = (outputLeft + outputRight) * 0.5f;
+        }
+        
     }
     
     if (!voice.env.isActive()) {
@@ -88,14 +95,17 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2){
 
 void Synth::noteOn(int note, int velocity){
     voice.note = note;
-    //float frequency = 440.0f * std::exp2( (float(note - 69) + tune) / 12.0f);
 
+    voice.updatePanning(noteStereoSpread);
+    
     //activate the first oscillator
     float period = calcPeriod(note);
     voice.period = period;
+    
     voice.osc1.amplitude = (velocity / 127.0f) * 0.5f;
     voice.osc2.amplitude = voice.osc1.amplitude * oscMix;
-//    voice.osc1.reset();
+    
+    voice.osc1.reset();
     voice.osc2.reset();
     
     Envelope& env = voice.env;
@@ -114,6 +124,10 @@ void Synth::noteOff(int note){
 }
 
 float Synth::calcPeriod(int note) const{
+    // moved std::pow(2, (note - 69)/12) to this function and
+    // replaced frequency/period calculation std:pow(x, y)
+    // with std::exp(y * log(x)) for the speed improvement.
+    
     float period = tune * std::exp(-0.05776226505f * float(note));
     while (period < 6.0f || (period * detune) < 6.0f) {
         period += period;
