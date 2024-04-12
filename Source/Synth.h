@@ -43,6 +43,9 @@ public:
     int numVoices;
     bool sustainPedaPressed;
     
+    float volumeTrim;
+    juce::LinearSmoothedValue<float> outputLevelSmoother;
+    
 private:
     void noteOn(int note, int velocity);
     void noteOff(int note);

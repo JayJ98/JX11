@@ -293,6 +293,8 @@ void JX11AudioProcessor::releaseResources()
 
 void JX11AudioProcessor::reset(){
     synth.reset();
+    
+    synth.outputLevelSmoother.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(outputLevelParam->get()));
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -708,8 +710,9 @@ void JX11AudioProcessor::update(){
     
     synth.numVoices = polyModeParam->get();
     
-
+    synth.volumeTrim = 0.0008f * (3.2f - synth.oscMix - 25.0f * synth.noiseMix) * 1.5f;
     
+    synth.outputLevelSmoother.setTargetValue(juce::Decibels::decibelsToGain(outputLevelParam->get()) );
 }
 
 
