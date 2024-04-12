@@ -36,7 +36,7 @@ inline void protectYourears(float* buffer, int sampleCount){
             buffer[i] = -1.0f;
         }else if (x > 1.0f){
             if (firstWarning){
-                DBG("!!! WARNING: sample out of range, claimping !!!");
+                DBG("!!! WARNING: sample out of range, clamping !!!");
                 firstWarning = false;
             }
             buffer[i] = 1.0f;

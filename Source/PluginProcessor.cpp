@@ -444,7 +444,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
     layout.add(std::make_unique<juce::AudioParameterFloat>(
                                                             ParameterID::polyMode,
                                                             "Polyphony",
-                                                            juce::NormalisableRange<float>(1.0f, 8.0f,1.0f),
+                                                            juce::NormalisableRange<float>(1.0f, 16.0f,1.0f),
                                                             1.0f,
                                                             juce::AudioParameterFloatAttributes().withLabel("voices")) );
     

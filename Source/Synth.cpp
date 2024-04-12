@@ -11,6 +11,7 @@
 #include "Synth.h"
 #include "Utils.h"
 static const float ANALOG = 0.002f;
+static const int SUSTAIN = -1;
 
 Synth::Synth(){
     sampleRate = 44100.0f;
@@ -33,6 +34,8 @@ void Synth::reset(){
     }
     noiseGen.reset();
     pitchBend = 1.0f;
+    
+    sustainPedaPressed = false;
 }
 
 
@@ -106,6 +109,9 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2){
         case 0xE0:
             pitchBend = std::exp(-0.000014102f * float(data1 + 128 * data2 - 8192));
             break;
+        case 0xB0:
+            controlChange(data1, data2);
+            break;
     }
     
 }
@@ -126,8 +132,12 @@ void Synth::noteOff(int note){
     
     for (int v = 0; v < numVoices; ++v) {
         if (voices[v].note == note) {
-            voices[v].release();
-            voices[v].note = 0;
+            if (sustainPedaPressed) {
+                voices[v].note = SUSTAIN;
+            }else{
+                voices[v].release();
+                voices[v].note = 0;
+            }
         }
     }
     
@@ -187,4 +197,24 @@ int Synth::findFreeVoice(){
     }
     
     return v;
+}
+
+
+void Synth::controlChange(uint8_t data1, uint8_t data2){
+    switch (data1){
+        case 0x40:
+            sustainPedaPressed = (data2 >= 64);
+            
+            if (!sustainPedaPressed) {
+                noteOff(SUSTAIN);
+            }
+            break;
+        default:
+            if (data1 >= 0x78) {
+                for (int v = 0; v < MAX_VOICES; ++v) {
+                    voices[v].reset();
+                }
+                sustainPedaPressed = false;
+            }
+    }
 }
