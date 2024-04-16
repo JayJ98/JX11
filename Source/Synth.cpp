@@ -12,6 +12,7 @@
 #include "Utils.h"
 static const float ANALOG = 0.002f;
 static const int SUSTAIN = -1;
+const float SILENCE = 0.0001f;
 
 Synth::Synth(){
     sampleRate = 44100.0f;
@@ -126,8 +127,15 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2){
 
 
 void Synth::noteOn(int note, int velocity){
-    int v = 0;
-    if (numVoices > 1) {
+    int v = 0; //index of voice to use (0 is mono voice)
+    
+    if (numVoices == 1) { // monophonic
+        if (voices[0].note > 0) {// legato-style playing
+            shiftQueuedNotes();
+            restartMonoVoice(note, velocity);
+            return;
+        }
+    }else{ // poloyphonic
         v = findFreeVoice();
     }
     
@@ -137,6 +145,12 @@ void Synth::noteOn(int note, int velocity){
 
 
 void Synth::noteOff(int note){
+    if ((numVoices == 1) && (voices[0].note == note)) {
+        int queuedNote = nextQueuedNote();
+        if (queuedNote > 0) {
+            restartMonoVoice(queuedNote, -1);
+        }
+    }
     
     for (int v = 0; v < numVoices; ++v) {
         if (voices[v].note == note) {
@@ -170,6 +184,19 @@ void Synth::startVoice(int v, int note, int velocity){
     env.sustainLevel = envSustain;
     env.releaseMultiplier = envRelease;
     env.attack();
+    
+}
+
+void Synth::restartMonoVoice(int note, int velocity){
+    float period = calcPeriod(0, note);
+    
+    Voice& voice = voices[0];
+    voice.period = period;
+    
+    voice.env.level += SILENCE + SILENCE;
+    voice.note = note;
+    voice.updatePanning(noteStereoSpread);
+    
 }
 
 
@@ -226,3 +253,28 @@ void Synth::controlChange(uint8_t data1, uint8_t data2){
             }
     }
 }
+
+void Synth::shiftQueuedNotes(){
+    for (int tmp = MAX_VOICES - 1; tmp > 0; tmp--) {
+        voices[tmp].note = voices[tmp - 1].note;
+        voices[tmp].release();
+    }
+}
+
+int Synth::nextQueuedNote(){
+    int held = 0;
+    for (int v = MAX_VOICES - 1; v > 0; v--) {
+        if (voices[v].note > 0) {
+            held = v;
+        }
+    }
+    
+    if (held > 0) {
+        int note = voices[held].note;
+        voices[held].note = 0;
+        return note;
+    }
+    
+    return 0;
+}
+

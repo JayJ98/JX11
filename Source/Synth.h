@@ -51,6 +51,9 @@ private:
     void noteOff(int note);
     float calcPeriod(int v, int note) const;
     int findFreeVoice();
+    void restartMonoVoice(int note, int velocity);
+    void shiftQueuedNotes();
+    int nextQueuedNote();
     
     float sampleRate;
     std::array<Voice, MAX_VOICES> voices;
