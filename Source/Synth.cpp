@@ -152,7 +152,7 @@ void Synth::noteOff(int note){
         }
     }
     
-    for (int v = 0; v < numVoices; ++v) {
+    for (int v = 0; v < MAX_VOICES; ++v) {
         if (voices[v].note == note) {
             if (sustainPedaPressed) {
                 voices[v].note = SUSTAIN;
@@ -175,7 +175,8 @@ void Synth::startVoice(int v, int note, int velocity){
     voice.note = note;
     voice.updatePanning(noteStereoSpread);
     
-    voice.osc1.amplitude = volumeTrim * velocity;
+    float vel = 0.004f * ((velocity + 64) * (velocity + 64)) - 8;
+    voice.osc1.amplitude = volumeTrim * vel;
     voice.osc2.amplitude = voice.osc1.amplitude * oscMix;
     
     Envelope& env = voice.env;
@@ -224,7 +225,7 @@ int Synth::findFreeVoice(){
     int v = 0;
     float l = 100.0f;
     
-    for (int i = 0; i < numVoices; ++i) {
+    for (int i = 0; i < MAX_VOICES; ++i) {
         if (voices[i].env.level < l && !voices[i].env.isInAttack() ) {
             l = voices[i].env.level;
             v = i;
