@@ -129,6 +129,13 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2){
 void Synth::noteOn(int note, int velocity){
     int v = 0; //index of voice to use (0 is mono voice)
     
+    if (ignoreVelocity) {
+        velocity = 80;
+    }else{
+        float sensitivity = std::abs(velocitySensitivity / 0.05f);
+        velocity = 80 + (velocity - 80) * sensitivity;
+    }
+    
     if (numVoices == 1) { // monophonic
         if (voices[0].note > 0) {// legato-style playing
             shiftQueuedNotes();
