@@ -723,6 +723,18 @@ void JX11AudioProcessor::update(){
         synth.ignoreVelocity = false;
     }
     
+    const float inverseUpdateRate = inverseSampleRate * synth.LFO_MAX;
+    
+    float lfoRate = std::exp(7.0f * lfoRateParam->get() - 4.0f);
+    synth.lfoInc = lfoRate * inverseUpdateRate * float(TWO_PI);
+
+    float vibrato = vibratoParam->get() / 200.0f;
+    synth.vibrato = 0.2f * vibrato * vibrato;
+    
+    synth.pwmDepth = synth.vibrato;
+    if (vibrato < 0.0f) {
+        synth.vibrato = 0.0f;
+    }
 }
 
 

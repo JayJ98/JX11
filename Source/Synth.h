@@ -49,6 +49,12 @@ public:
     float velocitySensitivity;
     bool ignoreVelocity;
     
+    const int LFO_MAX = 32;
+    float lfoInc;
+    
+    float vibrato;
+    
+    float pwmDepth;
 private:
     void noteOn(int note, int velocity);
     void noteOff(int note);
@@ -63,5 +69,12 @@ private:
     float pitchBend;
     
     NoiseGenerator noiseGen;
+    
+    void updateLFO();
+    
+    int lfoStep;
+    float lfo;
+    
+    float modWheel;
     
 };

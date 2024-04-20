@@ -39,6 +39,11 @@ void Synth::reset(){
     sustainPedaPressed = false;
     
     outputLevelSmoother.reset(sampleRate, 0.05);
+    
+    lfo = 0.0f;
+    lfoStep = 0;
+    
+    modWheel = 0.0f;
 }
 
 
@@ -55,6 +60,8 @@ void Synth::render(float** outputBuffers, int sampleCount){
     }
     
     for (int sample = 0; sample < sampleCount; ++sample) {
+        updateLFO();
+        
         const float noise = noiseGen.nextValue() * noiseMix;
         
         float outputLeft = 0.0f;
@@ -186,6 +193,10 @@ void Synth::startVoice(int v, int note, int velocity){
     voice.osc1.amplitude = volumeTrim * vel;
     voice.osc2.amplitude = voice.osc1.amplitude * oscMix;
     
+    if (vibrato == 0.0f && pwmDepth > 0.0f) {
+        voice.osc2.squareWave(voice.osc1, voice.period);
+    }
+    
     Envelope& env = voice.env;
     env.attackMultiplier = envAttack;
     env.decayMultiplier = envDecay;
@@ -252,6 +263,9 @@ void Synth::controlChange(uint8_t data1, uint8_t data2){
                 noteOff(SUSTAIN);
             }
             break;
+        case 0x01:
+            modWheel = 0.000005f * float(data2 * data2);
+            break;
         default:
             if (data1 >= 0x78) {
                 for (int v = 0; v < MAX_VOICES; ++v) {
@@ -284,5 +298,30 @@ int Synth::nextQueuedNote(){
     }
     
     return 0;
+}
+
+void Synth::updateLFO(){
+    if (--lfoStep <= 0) {
+        lfoStep = LFO_MAX;
+        
+        lfo += lfoInc;
+        
+        if (lfo > PI) {
+            lfo -= TWO_PI;
+        }
+        
+        const float sine = std::sin(lfo);
+        
+        float vibratoMod = 1.0f + sine * (modWheel + vibrato);
+        float pwm = 1.0f + sine * (modWheel + pwmDepth);
+        
+        for (int v = 0; v < MAX_VOICES; ++v) {
+            Voice& voice = voices[v];
+            if (voice.env.isActive()) {
+                voice.osc1.modulation = vibratoMod;
+                voice.osc2.modulation = pwm;
+            }
+        }
+    }
 }
 
