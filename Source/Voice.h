@@ -20,6 +20,10 @@ struct Voice{
     Envelope env;
     float period;
     
+    float target;
+    
+    float glideRate;
+    
     float panLeft, panRight;
     
     void reset(){
@@ -58,6 +62,10 @@ struct Voice{
         panLeft = std::sin(PI_OVER_4 * (1.0f - panning));
         panRight = std::sin(PI_OVER_4 * (1.0f + panning));
         
+    }
+    
+    void updateLFO(){
+        period += glideRate * (target - period);
     }
     
 };
