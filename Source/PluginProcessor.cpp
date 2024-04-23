@@ -755,6 +755,8 @@ void JX11AudioProcessor::update(){
     }
     
     synth.glideBend = glideBendParam->get();
+    
+    synth.filterKeyTracking = 0.08f * filterFreqParam->get() - 1.5f;
 }
 
 

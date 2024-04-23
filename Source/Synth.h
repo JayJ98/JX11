@@ -60,6 +60,8 @@ public:
     float glideRate;
     float glideBend;
     
+    float filterKeyTracking;
+    
 private:
     void noteOn(int note, int velocity);
     void noteOff(int note);
