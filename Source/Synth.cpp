@@ -50,6 +50,8 @@ void Synth::reset(){
     modWheel = 0.0f;
     
     lastNote = 0;
+    
+    resonanceCtl = 1.0f;
 }
 
 
@@ -62,6 +64,7 @@ void Synth::render(float** outputBuffers, int sampleCount){
         if (voice.env.isActive()) {
             updatePeriod(voice);
             voice.glideRate = glideRate;
+            voice.filterQ = filterQ * resonanceCtl;
         }
     }
     
@@ -300,6 +303,9 @@ void Synth::controlChange(uint8_t data1, uint8_t data2){
         case 0x01:
             modWheel = 0.000005f * float(data2 * data2);
             break;
+        case 0x4c:
+            resonanceCtl = 154.0f / float(154 - data2);
+            break;
         default:
             if (data1 >= 0x78) {
                 for (int v = 0; v < MAX_VOICES; ++v) {
@@ -350,7 +356,7 @@ void Synth::updateLFO(){
         float vibratoMod = 1.0f + sine * (modWheel + vibrato);
         float pwm = 1.0f + sine * (modWheel + pwmDepth);
         
-        float filterMod = filterKeyTracking;
+        float filterMod = filterKeyTracking + filterLFODepth * sine;
         
         for (int v = 0; v < MAX_VOICES; ++v) {
             Voice& voice = voices[v];
