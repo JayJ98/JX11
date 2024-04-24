@@ -95,4 +95,8 @@ private:
     float modWheel;
     
     int lastNote;
+    
+    float pressure;
+    
+    float filterCtl;
 };

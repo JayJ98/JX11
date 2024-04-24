@@ -52,6 +52,10 @@ void Synth::reset(){
     lastNote = 0;
     
     resonanceCtl = 1.0f;
+    
+    pressure = 0.0f;
+    
+    filterCtl = 0.0f;
 }
 
 
@@ -136,6 +140,9 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2){
             break;
         case 0xB0:
             controlChange(data1, data2);
+            break;
+        case 0xD0:
+            pressure = 0.0001f * float(data1 * data1);
             break;
     }
     
@@ -306,6 +313,12 @@ void Synth::controlChange(uint8_t data1, uint8_t data2){
         case 0x4c:
             resonanceCtl = 154.0f / float(154 - data2);
             break;
+        case 0x4b:
+            filterCtl = 0.02f * float(data2);
+            break;
+        case 0x4a:
+            filterCtl = -0.03f * float(data2);
+            break;
         default:
             if (data1 >= 0x78) {
                 for (int v = 0; v < MAX_VOICES; ++v) {
@@ -356,7 +369,7 @@ void Synth::updateLFO(){
         float vibratoMod = 1.0f + sine * (modWheel + vibrato);
         float pwm = 1.0f + sine * (modWheel + pwmDepth);
         
-        float filterMod = filterKeyTracking + filterLFODepth * sine;
+        float filterMod = filterKeyTracking + filterCtl + (filterLFODepth + pressure) * sine;
         
         for (int v = 0; v < MAX_VOICES; ++v) {
             Voice& voice = voices[v];
