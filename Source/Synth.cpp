@@ -69,6 +69,7 @@ void Synth::render(float** outputBuffers, int sampleCount){
             updatePeriod(voice);
             voice.glideRate = glideRate;
             voice.filterQ = filterQ * resonanceCtl;
+            voice.pitcheBend = pitchBend;
         }
     }
     

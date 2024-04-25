@@ -33,6 +33,8 @@ struct Voice{
     float filterMod;
     float filterQ;
     
+    float pitcheBend;
+    
     void reset(){
         note = 0;
         saw = 0.0f;
@@ -77,7 +79,7 @@ struct Voice{
     
     void updateLFO(){
         period += glideRate * (target - period);
-        float modulatedCutoff = cutoff * std::exp(filterMod);
+        float modulatedCutoff = cutoff * std::exp(filterMod) / pitcheBend;
         modulatedCutoff = std::clamp(modulatedCutoff, 30.0f, 20000.0f);
         filter.updateCoefficients(modulatedCutoff, filterQ);
     }
