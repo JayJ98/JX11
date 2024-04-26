@@ -21,6 +21,7 @@ Synth::Synth(){
 
 void Synth::allocateResources(double sampleRate_, int /*samplesPerBlock*/){
     sampleRate = static_cast<float>(sampleRate_);
+    inverseSampleRate = static_cast<float>(1/sampleRate_);
     
     for(int v = 0; v < MAX_VOICES; ++v){
         voices[v].filter.sampleRate = sampleRate;
@@ -56,6 +57,8 @@ void Synth::reset(){
     pressure = 0.0f;
     
     filterCtl = 0.0f;
+    
+    filterZip = 0.0f;
 }
 
 
@@ -372,12 +375,14 @@ void Synth::updateLFO(){
         
         float filterMod = filterKeyTracking + filterCtl + (filterLFODepth + pressure) * sine;
         
+        filterZip += 0.005f * (filterMod - filterZip);
+
         for (int v = 0; v < MAX_VOICES; ++v) {
             Voice& voice = voices[v];
             if (voice.env.isActive()) {
                 voice.osc1.modulation = vibratoMod;
                 voice.osc2.modulation = pwm;
-                voice.filterMod = filterMod;
+                voice.filterMod = filterZip;
                 voice.updateLFO();
                 updatePeriod(voice);
             }

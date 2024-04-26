@@ -82,6 +82,8 @@ private:
     }
     
     float sampleRate;
+    float inverseSampleRate;
+    
     std::array<Voice, MAX_VOICES> voices;
     float pitchBend;
     
@@ -99,4 +101,6 @@ private:
     float pressure;
     
     float filterCtl;
+    
+    float filterZip;
 };
