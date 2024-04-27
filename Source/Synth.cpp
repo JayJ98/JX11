@@ -73,6 +73,7 @@ void Synth::render(float** outputBuffers, int sampleCount){
             voice.glideRate = glideRate;
             voice.filterQ = filterQ * resonanceCtl;
             voice.pitcheBend = pitchBend;
+            voice.filterEnvDepth = filterEnvDepth;
         }
     }
     
@@ -242,6 +243,13 @@ void Synth::startVoice(int v, int note, int velocity){
     env.releaseMultiplier = envRelease;
     env.attack();
     
+    Envelope& filterEnv = voice.filterEnv;
+    filterEnv.attackMultiplier = filterAttack;
+    filterEnv.decayMultiplier = filterDecay;
+    filterEnv.sustainLevel = filterSustain;
+    filterEnv.releaseMultiplier = filterRelease;
+    filterEnv.attack();
+    
 }
 
 void Synth::restartMonoVoice(int note, int velocity){
@@ -306,7 +314,6 @@ void Synth::controlChange(uint8_t data1, uint8_t data2){
     switch (data1){
         case 0x40:
             sustainPedaPressed = (data2 >= 64);
-            
             if (!sustainPedaPressed) {
                 noteOff(SUSTAIN);
             }
@@ -375,8 +382,8 @@ void Synth::updateLFO(){
         
         float filterMod = filterKeyTracking + filterCtl + (filterLFODepth + pressure) * sine;
         
-        filterZip += 0.005f * (filterMod - filterZip);
-
+        filterZip += 0.05f * (filterMod - filterZip);
+        
         for (int v = 0; v < MAX_VOICES; ++v) {
             Voice& voice = voices[v];
             if (voice.env.isActive()) {
