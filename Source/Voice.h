@@ -11,8 +11,8 @@
 #pragma once
 #include "Oscillator.h"
 #include "Envelope.h"
-#include "Filter.h"
-
+//#include "Filter.h"
+#include "LadderFilter.h"
 
 struct Voice{
     int note;
@@ -29,9 +29,11 @@ struct Voice{
     float panLeft, panRight;
     
     Filter filter;
+
     float cutoff;
     float filterMod;
     float filterQ;
+    float filterDrive;
     
     float pitcheBend;
     
@@ -52,6 +54,8 @@ struct Voice{
         filter.reset();
         
         filterEnv.reset();
+        
+        filterDrive = 0.0f;
     }
 
     float render(float input){
@@ -88,7 +92,7 @@ struct Voice{
         float fenv = filterEnv.nextValue();
         float modulatedCutoff = cutoff * std::exp(filterMod + filterEnvDepth * fenv) / pitcheBend;
         modulatedCutoff = std::clamp(modulatedCutoff, 30.0f, 20000.0f);
-        filter.updateCoefficients(modulatedCutoff, filterQ);
+        filter.updateCoefficients(modulatedCutoff, filterQ, filterDrive);
     }
     
     

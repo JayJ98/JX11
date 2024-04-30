@@ -22,13 +22,13 @@ JX11AudioProcessor::JX11AudioProcessor()
                        )
 #endif
 {
-//    noiseParam = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(ParameterID::noise.getParamID()));
     castParameter(apvts, ParameterID::oscMix, oscMixParam);
     castParameter(apvts, ParameterID::oscTune, oscTuneParam);
     castParameter(apvts, ParameterID::oscFine, oscFineParam);
     castParameter(apvts, ParameterID::glideMode, glideModeParam);
     castParameter(apvts, ParameterID::glideRate, glideRateParam);
     castParameter(apvts, ParameterID::glideBend, glideBendParam);
+    castParameter(apvts, ParameterID::filterDrive, filterDriveParam);
     castParameter(apvts, ParameterID::filterFreq, filterFreqParam);
     castParameter(apvts, ParameterID::filterReso, filterResoParam);
     castParameter(apvts, ParameterID::filterEnv, filterEnvParam);
@@ -124,6 +124,7 @@ void JX11AudioProcessor::setCurrentProgram (int index)
         glideModeParam,
         glideRateParam,
         glideBendParam,
+        filterDriveParam,
         filterFreqParam,
         filterResoParam,
         filterEnvParam,
@@ -509,6 +510,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout JX11AudioProcessor::createPa
                                                            juce::AudioParameterFloatAttributes().withLabel("semi")) );
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
+                                                           ParameterID::filterDrive,
+                                                           "Filter Drive",
+                                                           juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f),
+                                                           1.0f,
+                                                           juce::AudioParameterFloatAttributes().withLabel("%")) );
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
                                                            ParameterID::filterFreq,
                                                            "Filter Freq",
                                                            juce::NormalisableRange<float>(0.0f, 100.0f, 0.1f),
@@ -755,6 +763,9 @@ void JX11AudioProcessor::update(){
     
     synth.glideBend = glideBendParam->get();
     
+    synth.filterDrive = filterDriveParam->get();
+    DBG("synth.filterDrive: " << synth.filterDrive);
+    
     synth.filterKeyTracking = 0.08f * filterFreqParam->get() - 1.5f;
     
     float filterReso = filterResoParam->get() / 100.0f;
@@ -773,6 +784,7 @@ void JX11AudioProcessor::update(){
     synth.filterRelease = std::exp(-inverseUpdateRate * std::exp(5.5f - 0.075f * filterReleaseParam->get()));
     
     synth.filterEnvDepth = 0.06f * filterEnvParam->get();
+    
 }
 
 

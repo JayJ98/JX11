@@ -21,6 +21,7 @@ namespace ParameterID{
     PARAMETER_ID(glideMode)
     PARAMETER_ID(glideRate)
     PARAMETER_ID(glideBend)
+    PARAMETER_ID(filterDrive)
     PARAMETER_ID(filterFreq)
     PARAMETER_ID(filterReso)
     PARAMETER_ID(filterEnv)
@@ -113,6 +114,7 @@ private:
     juce::AudioParameterChoice* glideModeParam;
     juce::AudioParameterFloat*  glideBendParam;
     juce::AudioParameterFloat*  glideRateParam;
+    juce::AudioParameterFloat*  filterDriveParam;
     juce::AudioParameterFloat*  filterFreqParam;
     juce::AudioParameterFloat*  filterResoParam;
     juce::AudioParameterFloat*  filterEnvParam;

@@ -60,6 +60,7 @@ public:
     float glideRate;
     float glideBend;
     
+    float filterDrive;
     float filterKeyTracking;
     float filterQ;
     float resonanceCtl;
